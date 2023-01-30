@@ -279,6 +279,13 @@ import (
 	bucketobject "github.com/upbound/provider-gcp/internal/controller/storage/bucketobject"
 	defaultobjectaccesscontrol "github.com/upbound/provider-gcp/internal/controller/storage/defaultobjectaccesscontrol"
 	defaultobjectacl "github.com/upbound/provider-gcp/internal/controller/storage/defaultobjectacl"
+	datasetvertexai "github.com/upbound/provider-gcp/internal/controller/vertexai/dataset"
+	endpoint "github.com/upbound/provider-gcp/internal/controller/vertexai/endpoint"
+	featurestore "github.com/upbound/provider-gcp/internal/controller/vertexai/featurestore"
+	featurestoreentitytype "github.com/upbound/provider-gcp/internal/controller/vertexai/featurestoreentitytype"
+	featurestoreentitytypefeature "github.com/upbound/provider-gcp/internal/controller/vertexai/featurestoreentitytypefeature"
+	indexvertexai "github.com/upbound/provider-gcp/internal/controller/vertexai/index"
+	tensorboard "github.com/upbound/provider-gcp/internal/controller/vertexai/tensorboard"
 )
 
 // Setup creates all controllers with the supplied logger and adds them to
@@ -555,6 +562,13 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		bucketobject.Setup,
 		defaultobjectaccesscontrol.Setup,
 		defaultobjectacl.Setup,
+		datasetvertexai.Setup,
+		endpoint.Setup,
+		featurestore.Setup,
+		featurestoreentitytype.Setup,
+		featurestoreentitytypefeature.Setup,
+		indexvertexai.Setup,
+		tensorboard.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err

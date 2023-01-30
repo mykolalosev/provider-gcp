@@ -1,0 +1,584 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: endpoints.vertexai.gcp.upbound.io
+spec:
+  group: vertexai.gcp.upbound.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - gcp
+    kind: Endpoint
+    listKind: EndpointList
+    plural: endpoints
+    singular: endpoint
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: Endpoint is the Schema for the Endpoints API. Models are deployed
+          into it, and afterwards Endpoint is called to obtain predictions and explanations.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EndpointSpec defines the desired state of Endpoint
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: DeletionPolicy specifies what will happen to the underlying
+                  external when this managed resource is deleted - either "Delete"
+                  or "Orphan" the external resource.
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  description:
+                    description: The description of the Endpoint.
+                    type: string
+                  displayName:
+                    description: Required. The display name of the Endpoint. The name
+                      can be up to 128 characters long and can consist of any UTF-8
+                      characters.
+                    type: string
+                  encryptionSpec:
+                    description: Customer-managed encryption key spec for an Endpoint.
+                      If set, this Endpoint and all sub-resources of this Endpoint
+                      will be secured by this key. Structure is documented below.
+                    items:
+                      properties:
+                        kmsKeyName:
+                          description: 'Required. The Cloud KMS resource identifier
+                            of the customer managed encryption key used to protect
+                            a resource. Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.
+                            The key needs to be in the same region as where the compute
+                            resource is created.'
+                          type: string
+                      required:
+                      - kmsKeyName
+                      type: object
+                    type: array
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: The labels with user-defined metadata to organize
+                      your Endpoints. Label keys and values can be no longer than
+                      64 characters (Unicode codepoints), can only contain lowercase
+                      letters, numeric characters, underscores and dashes. International
+                      characters are allowed. See https://goo.gl/xmQnxf for more information
+                      and examples of labels.
+                    type: object
+                  location:
+                    description: The location for the resource
+                    type: string
+                  network:
+                    description: 'The full name of the Google Compute Engine network
+                      to which the Endpoint should be peered. Private services access
+                      must already be configured for the network. If left unspecified,
+                      the Endpoint is not peered with any network. Only one of the
+                      fields, network or enable_private_service_connect, can be set.
+                      Format: projects/{project}/global/networks/{network}. Where
+                      {project} is a project number, as in 12345, and {network} is
+                      network name.'
+                    type: string
+                  project:
+                    description: The ID of the project in which the resource belongs.
+                      If it is not provided, the provider project is used.
+                    type: string
+                required:
+                - displayName
+                - location
+                type: object
+              providerConfigRef:
+                default:
+                  name: default
+                description: ProviderConfigReference specifies how the provider that
+                  will be used to create, observe, update, and delete this managed
+                  resource should be configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              providerRef:
+                description: 'ProviderReference specifies the provider that will be
+                  used to create, observe, update, and delete this managed resource.
+                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              publishConnectionDetailsTo:
+                description: PublishConnectionDetailsTo specifies the connection secret
+                  config which contains a name, metadata and a reference to secret
+                  store config to which any connection details for this managed resource
+                  should be written. Connection details frequently include the endpoint,
+                  username, and password required to connect to the managed resource.
+                properties:
+                  configRef:
+                    default:
+                      name: default
+                    description: SecretStoreConfigRef specifies which secret store
+                      config should be used for this ConnectionSecret.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                      policy:
+                        description: Policies for referencing.
+                        properties:
+                          resolution:
+                            default: Required
+                            description: Resolution specifies whether resolution of
+                              this reference is required. The default is 'Required',
+                              which means the reconcile will fail if the reference
+                              cannot be resolved. 'Optional' means this reference
+                              will be a no-op if it cannot be resolved.
+                            enum:
+                            - Required
+                            - Optional
+                            type: string
+                          resolve:
+                            description: Resolve specifies when this reference should
+                              be resolved. The default is 'IfNotPresent', which will
+                              attempt to resolve the reference only when the corresponding
+                              field is not present. Use 'Always' to resolve the reference
+                              on every reconcile.
+                            enum:
+                            - Always
+                            - IfNotPresent
+                            type: string
+                        type: object
+                    required:
+                    - name
+                    type: object
+                  metadata:
+                    description: Metadata is the metadata for connection secret.
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: Annotations are the annotations to be added to
+                          connection secret. - For Kubernetes secrets, this will be
+                          used as "metadata.annotations". - It is up to Secret Store
+                          implementation for others store types.
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: Labels are the labels/tags to be added to connection
+                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store
+                          types.
+                        type: object
+                      type:
+                        description: Type is the SecretType for the connection secret.
+                          - Only valid for Kubernetes Secret Stores.
+                        type: string
+                    type: object
+                  name:
+                    description: Name is the name of the connection secret.
+                    type: string
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: WriteConnectionSecretToReference specifies the namespace
+                  and name of a Secret to which any connection details for this managed
+                  resource should be written. Connection details frequently include
+                  the endpoint, username, and password required to connect to the
+                  managed resource. This field is planned to be replaced in a future
+                  release in favor of PublishConnectionDetailsTo. Currently, both
+                  could be set independently and connection details would be published
+                  to both without affecting each other.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+          status:
+            description: EndpointStatus defines the observed state of Endpoint.
+            properties:
+              atProvider:
+                properties:
+                  createTime:
+                    description: Output only. Timestamp when this Endpoint was created.
+                    type: string
+                  deployedModels:
+                    description: Output only. The models deployed in this Endpoint.
+                      To add or remove DeployedModels use EndpointService.DeployModel
+                      and EndpointService.UndeployModel respectively. Models can also
+                      be deployed and undeployed using the Cloud Console. Structure
+                      is documented below.
+                    items:
+                      properties:
+                        automaticResources:
+                          description: A description of resources that to large degree
+                            are decided by Vertex AI, and require only a modest additional
+                            configuration. Structure is documented below.
+                          items:
+                            properties:
+                              maxReplicaCount:
+                                description: The maximum number of replicas this DeployedModel
+                                  may be deployed on when the traffic against it increases.
+                                  If the requested value is too large, the deployment
+                                  will error, but if deployment succeeds then the
+                                  ability to scale the model to that many replicas
+                                  is guaranteed (barring service outages). If traffic
+                                  against the DeployedModel increases beyond what
+                                  its replicas at maximum may handle, a portion of
+                                  the traffic will be dropped. If this value is not
+                                  provided, will use min_replica_count as the default
+                                  value. The value of this field impacts the charge
+                                  against Vertex CPU and GPU quotas. Specifically,
+                                  you will be charged for max_replica_count * number
+                                  of cores in the selected machine type) and (max_replica_count
+                                  * number of GPUs per replica in the selected machine
+                                  type).
+                                type: number
+                              minReplicaCount:
+                                description: The minimum number of machine replicas
+                                  this DeployedModel will be always deployed on. This
+                                  value must be greater than or equal to 1. If traffic
+                                  against the DeployedModel increases, it may dynamically
+                                  be deployed onto more replicas, and as traffic decreases,
+                                  some of these extra replicas may be freed.
+                                type: number
+                            type: object
+                          type: array
+                        createTime:
+                          description: Output only. Timestamp when the DeployedModel
+                            was created.
+                          type: string
+                        dedicatedResources:
+                          description: A description of resources that are dedicated
+                            to the DeployedModel, and that need a higher degree of
+                            manual configuration. Structure is documented below.
+                          items:
+                            properties:
+                              autoscalingMetricSpecs:
+                                description: The metric specifications that overrides
+                                  a resource utilization metric (CPU utilization,
+                                  accelerator's duty cycle, and so on) target value
+                                  (default to 60 if not set). At most one entry is
+                                  allowed per metric. If machine_spec.accelerator_count
+                                  is above 0, the autoscaling will be based on both
+                                  CPU utilization and accelerator's duty cycle metrics
+                                  and scale up when either metrics exceeds its target
+                                  value while scale down if both metrics are under
+                                  their target value. The default target value is
+                                  60 for both metrics. If machine_spec.accelerator_count
+                                  is 0, the autoscaling will be based on CPU utilization
+                                  metric only with default target value 60 if not
+                                  explicitly set. For example, in the case of Online
+                                  Prediction, if you want to override target CPU utilization
+                                  to 80, you should set autoscaling_metric_specs.metric_name
+                                  to aiplatform.googleapis.com/prediction/online/cpu/utilization
+                                  and autoscaling_metric_specs.target to 80. Structure
+                                  is documented below.
+                                items:
+                                  properties:
+                                    metricName:
+                                      description: 'The resource metric name. Supported
+                                        metrics: * For Online Prediction: * aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle
+                                        * aiplatform.googleapis.com/prediction/online/cpu/utilization'
+                                      type: string
+                                    target:
+                                      description: The target resource utilization
+                                        in percentage (1% - 100%) for the given metric;
+                                        once the real usage deviates from the target
+                                        by a certain percentage, the machine replicas
+                                        change. The default value is 60 (representing
+                                        60%) if not provided.
+                                      type: number
+                                  type: object
+                                type: array
+                              machineSpec:
+                                description: The specification of a single machine
+                                  used by the prediction. Structure is documented
+                                  below.
+                                items:
+                                  properties:
+                                    acceleratorCount:
+                                      description: The number of accelerators to attach
+                                        to the machine.
+                                      type: number
+                                    acceleratorType:
+                                      description: The type of accelerator(s) that
+                                        may be attached to the machine as per accelerator_count.
+                                        See possible values here.
+                                      type: string
+                                    machineType:
+                                      description: 'The type of the machine. See the
+                                        list of machine types supported for prediction
+                                        See the list of machine types supported for
+                                        custom training. For DeployedModel this field
+                                        is optional, and the default value is n1-standard-2.
+                                        For BatchPredictionJob or as part of WorkerPoolSpec
+                                        this field is required. TODO(rsurowka): Try
+                                        to better unify the required vs optional.'
+                                      type: string
+                                  type: object
+                                type: array
+                              maxReplicaCount:
+                                description: The maximum number of replicas this DeployedModel
+                                  may be deployed on when the traffic against it increases.
+                                  If the requested value is too large, the deployment
+                                  will error, but if deployment succeeds then the
+                                  ability to scale the model to that many replicas
+                                  is guaranteed (barring service outages). If traffic
+                                  against the DeployedModel increases beyond what
+                                  its replicas at maximum may handle, a portion of
+                                  the traffic will be dropped. If this value is not
+                                  provided, will use min_replica_count as the default
+                                  value. The value of this field impacts the charge
+                                  against Vertex CPU and GPU quotas. Specifically,
+                                  you will be charged for max_replica_count * number
+                                  of cores in the selected machine type) and (max_replica_count
+                                  * number of GPUs per replica in the selected machine
+                                  type).
+                                type: number
+                              minReplicaCount:
+                                description: The minimum number of machine replicas
+                                  this DeployedModel will be always deployed on. This
+                                  value must be greater than or equal to 1. If traffic
+                                  against the DeployedModel increases, it may dynamically
+                                  be deployed onto more replicas, and as traffic decreases,
+                                  some of these extra replicas may be freed.
+                                type: number
+                            type: object
+                          type: array
+                        displayName:
+                          description: The display name of the DeployedModel. If not
+                            provided upon creation, the Model's display_name is used.
+                          type: string
+                        enableAccessLogging:
+                          description: These logs are like standard server access
+                            logs, containing information like timestamp and latency
+                            for each prediction request. Note that Stackdriver logs
+                            may incur a cost, especially if your project receives
+                            prediction requests at a high queries per second rate
+                            (QPS). Estimate your costs before enabling this option.
+                          type: boolean
+                        enableContainerLogging:
+                          description: If true, the container of the DeployedModel
+                            instances will send stderr and stdout streams to Stackdriver
+                            Logging. Only supported for custom-trained Models and
+                            AutoML Tabular Models.
+                          type: boolean
+                        id:
+                          description: The ID of the DeployedModel. If not provided
+                            upon deployment, Vertex AI will generate a value for this
+                            ID. This value should be 1-10 characters, and valid characters
+                            are /[0-9]/.
+                          type: string
+                        model:
+                          description: The name of the Model that this is the deployment
+                            of. Note that the Model may be in a different location
+                            than the DeployedModel's Endpoint.
+                          type: string
+                        modelVersionId:
+                          description: Output only. The version ID of the model that
+                            is deployed.
+                          type: string
+                        privateEndpoints:
+                          description: Output only. Provide paths for users to send
+                            predict/explain/health requests directly to the deployed
+                            model services running on Cloud via private services access.
+                            This field is populated if network is configured. Structure
+                            is documented below.
+                          items:
+                            properties:
+                              explainHttpUri:
+                                description: Output only. Http(s) path to send explain
+                                  requests.
+                                type: string
+                              healthHttpUri:
+                                description: Output only. Http(s) path to send health
+                                  check requests.
+                                type: string
+                              predictHttpUri:
+                                description: Output only. Http(s) path to send prediction
+                                  requests.
+                                type: string
+                              serviceAttachment:
+                                description: Output only. The name of the service
+                                  attachment resource. Populated if private service
+                                  connect is enabled.
+                                type: string
+                            type: object
+                          type: array
+                        serviceAccount:
+                          description: The service account that the DeployedModel's
+                            container runs as. Specify the email address of the service
+                            account. If this service account is not specified, the
+                            container runs as a service account that doesn't have
+                            access to the resource project. Users deploying the Model
+                            must have the iam.serviceAccounts.actAs permission on
+                            this service account.
+                          type: string
+                        sharedResources:
+                          description: 'The resource name of the shared DeploymentResourcePool
+                            to deploy on. Format: projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}'
+                          type: string
+                      type: object
+                    type: array
+                  etag:
+                    description: Used to perform consistent read-modify-write updates.
+                      If not set, a blind "overwrite" update happens.
+                    type: string
+                  id:
+                    description: an identifier for the resource with format projects/{{project}}/locations/{{location}}/endpoints/{{name}}
+                    type: string
+                  modelDeploymentMonitoringJob:
+                    description: 'Output only. Resource name of the Model Monitoring
+                      job associated with this Endpoint if monitoring is enabled by
+                      CreateModelDeploymentMonitoringJob. Format: projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}'
+                    type: string
+                  updateTime:
+                    description: Output only. Timestamp when this Endpoint was last
+                      updated.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: LastTransitionTime is the last time this condition
+                        transitioned from one status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A Message containing details about this condition's
+                        last transition from one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: Type of this condition. At most one of each condition
+                        type may apply to a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
